@@ -1,3 +1,11 @@
+# arch-dotfiles
+
+My Arch Linux + niri setup. Keybindings live in `niri/config.kdl`. Package lists are in `packages/` (install with `sudo pacman -S --needed - < packages/pacman.txt` and `yay -S --needed - < packages/aur.txt`).
+
+Based on [saatvik333/niri-dotfiles](https://github.com/saatvik333/niri-dotfiles) (MIT). Additions on top: cava, quickshell, wlogout, swayidle, swaync, gtk, Thunar, `zsh/.zshrc` (secrets go in an untracked `~/.zshrc.secrets`).
+
+---
+
 # Niri WM Dotfiles
 
 <div align="center">
