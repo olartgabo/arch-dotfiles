@@ -1,0 +1,31 @@
+/* CSS variables for SwayNC (swaync)
+ * Generate to ~/.config/swaync/colors.css via wallust, then import it from
+ * style.css:
+ *
+ *   @import url("colors.css");
+ */
+
+:root {
+  --wallust-cursor: #E0E5EC;
+  --wallust-background: #272C37;
+  --wallust-foreground: #E0E5EC;
+  --wallust-color0: #2E3440;
+  --wallust-color1: #9A5D6D;
+  --wallust-color2: #5E7BA1;
+  --wallust-color3: #5E87BA;
+  --wallust-color4: #5C8BB9;
+  --wallust-color5: #689CB8;
+  --wallust-color6: #70BCC2;
+  --wallust-color7: #E0E5EC;
+  --wallust-color8: #454B57;
+  --wallust-color9: #9A5D6D;
+  --wallust-color10: #5E7BA1;
+  --wallust-color11: #5E87BA;
+  --wallust-color12: #5C8BB9;
+  --wallust-color13: #689CB8;
+  --wallust-color14: #70BCC2;
+  --wallust-color15: #E0E5EC;
+  --wallust-background-dim: #232832;
+  --wallust-color12-soft: #DEE8F1;
+  --wallust-color11-soft: #DFE7F1;
+}

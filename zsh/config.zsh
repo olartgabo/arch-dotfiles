@@ -20,8 +20,36 @@ done
 ######################
 ### Key Bindings  ####
 ######################
+# Enable zsh completion system (tab autocomplete)
+autoload -Uz compinit
+compinit
+
+# Case-insensitive completion (mcp <TAB> matches MCPJAM)
+zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
 # Enable vim bindings
 bindkey -v
+
+# Ctrl+R: fuzzy history search, most frequent commands first
+if command -v fzf >/dev/null 2>&1; then
+  fzf-history-widget() {
+    local selected
+    selected="$(fc -rl 1 |
+      sed 's/^[[:space:]]*[0-9][0-9]*[[:space:]]*//' |
+      awk '{ c[$0]++ } END { for (cmd in c) print c[cmd], cmd }' |
+      sort -rn |
+      sed 's/^[0-9][0-9]* //' |
+      fzf --height 40% --reverse -q "$BUFFER")"
+    if [[ -n "$selected" ]]; then
+      BUFFER="$selected"
+      CURSOR=${#BUFFER}
+      zle accept-line
+    fi
+  }
+  zle -N fzf-history-widget
+  bindkey '^R' fzf-history-widget
+  bindkey -M viins '^R' fzf-history-widget
+fi
 
 # Zsh-specific settings
 HISTFILE=~/.histfile

@@ -1,0 +1,357 @@
+/*
+ * SwayNC theme.
+ *
+ * Colors come from wallust (generated into ./colors.css), matching the old
+ * mako palette: background card, foreground text, color12 border.
+ *
+ * The enter animation lives here, on .notification. Tune duration/easing to
+ * taste, then reload with: swaync-client -R
+ */
+
+@import url("colors.css");
+
+:root {
+  --cc-bg: var(--wallust-background-dim);
+
+  --noti-border-color: var(--wallust-color12);
+  --noti-bg: var(--wallust-background);
+  --noti-bg-alpha: 1;
+  --noti-bg-darker: var(--wallust-background-dim);
+  --noti-bg-hover: var(--wallust-color0);
+  --noti-bg-focus: var(--wallust-color0);
+  --noti-close-bg: var(--wallust-color0);
+  --noti-close-bg-hover: var(--wallust-color1);
+  --noti-close-text: var(--wallust-foreground);
+
+  --text-color: var(--wallust-foreground);
+  --text-color-disabled: var(--wallust-color8);
+
+  --notification-icon-size: 48px;
+  --notification-app-icon-size: 16px;
+  --notification-group-icon-size: 32px;
+
+  --border: 2px solid var(--noti-border-color);
+  --border-radius: 0px;
+
+  --notification-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+
+  --font-size-body: 13px;
+  --font-size-summary: 14px;
+
+  --hover-transition: background 120ms ease-in-out;
+  --group-collapse-transition: opacity 150ms ease-in-out;
+}
+
+notificationwindow,
+blankwindow {
+  background: transparent;
+}
+
+/* Slide in from the right edge (toasts sit top-right), with a slight
+ * overshoot. If you want a fade/scale instead, swap the keyframes. */
+.notification {
+  animation: notify-enter 280ms cubic-bezier(0.2, 0.9, 0.3, 1.08);
+}
+
+@keyframes notify-enter {
+  from {
+    opacity: 0;
+    transform: translateX(340px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.close-button {
+  background: var(--noti-close-bg);
+  color: var(--noti-close-text);
+  text-shadow: none;
+  padding: 0;
+  border-radius: 0;
+  margin: 8px;
+  box-shadow: none;
+  border: none;
+  min-width: 22px;
+  min-height: 22px;
+}
+
+.close-button:hover {
+  box-shadow: none;
+  background: var(--noti-close-bg-hover);
+  transition: var(--hover-transition);
+  border: none;
+}
+
+.notification-row {
+  background: none;
+  outline: none;
+}
+
+.notification-row:focus {
+  background: var(--noti-bg-focus);
+}
+
+.notification-background {
+  padding: 6px 12px;
+}
+
+.notification {
+  border-radius: var(--border-radius);
+  border: var(--border);
+  padding: 0;
+  transition: var(--hover-transition);
+  background: var(--noti-bg);
+}
+
+.notification.critical {
+  border-color: var(--wallust-color1);
+  background-color: var(--wallust-background);
+}
+
+.notification .notification-default-action {
+  padding: 8px;
+  margin: 0;
+  box-shadow: none;
+  background: transparent;
+  border: none;
+  color: var(--text-color);
+  transition: var(--hover-transition);
+  border-radius: var(--border-radius);
+}
+
+.notification .notification-default-action:hover {
+  -gtk-icon-filter: none;
+  background: var(--noti-bg-hover);
+}
+
+.notification .notification-default-action:not(:only-child) {
+  border-bottom-left-radius: 0px;
+  border-bottom-right-radius: 0px;
+}
+
+.notification-content {
+  background: transparent;
+  border-radius: var(--border-radius);
+  padding: 0;
+}
+
+.notification-content .image {
+  -gtk-icon-filter: none;
+  -gtk-icon-size: var(--notification-icon-size);
+  border-radius: 0;
+  margin: 4px;
+}
+
+.notification-content .app-icon {
+  -gtk-icon-filter: none;
+  -gtk-icon-size: var(--notification-app-icon-size);
+  -gtk-icon-shadow: 0 1px 4px black;
+  margin: 6px;
+}
+
+.notification-content .text-box label {
+  filter: none;
+}
+
+.notification-content .summary {
+  font-size: var(--font-size-summary);
+  font-weight: bold;
+  background: transparent;
+  color: var(--text-color);
+  text-shadow: none;
+}
+
+.notification-content .time {
+  font-size: var(--font-size-summary);
+  font-weight: bold;
+  background: transparent;
+  color: var(--text-color-disabled);
+  text-shadow: none;
+  margin-right: 30px;
+}
+
+.notification-content .body {
+  font-size: var(--font-size-body);
+  font-weight: normal;
+  background: transparent;
+  color: var(--text-color);
+  text-shadow: none;
+}
+
+.notification-content progressbar {
+  margin-top: 8px;
+  color: var(--wallust-color12);
+}
+
+.notification-content .body-image {
+  margin-top: 8px;
+  background-color: white;
+  -gtk-icon-filter: none;
+}
+
+.notification-content .inline-reply {
+  margin-top: 8px;
+}
+
+.notification-content .inline-reply-entry {
+  background: var(--noti-bg-darker);
+  color: var(--text-color);
+  caret-color: var(--text-color);
+  border: var(--border);
+  border-radius: var(--border-radius);
+}
+
+.notification-content .inline-reply-button {
+  margin-left: 4px;
+  background: var(--noti-bg);
+  border: var(--border);
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+}
+
+.notification-content .inline-reply-button:disabled {
+  background: initial;
+  color: var(--text-color-disabled);
+  border: var(--border);
+  border-color: transparent;
+}
+
+.notification-content .inline-reply-button:hover {
+  background: var(--noti-bg-hover);
+}
+
+.notification-alt-actions {
+  background: none;
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  padding: 8px;
+}
+
+.notification-action {
+  margin: 8px;
+  padding: 0;
+}
+
+.notification-action > button {
+  border-radius: var(--border-radius);
+  color: var(--text-color);
+}
+
+.notification-group {
+  transition: opacity 200ms ease-in-out;
+}
+
+.notification-group:focus {
+  background: var(--noti-bg-focus);
+}
+
+.notification-group .notification-group-close-button .close-button {
+  margin: 12px 20px;
+}
+
+.notification-group .notification-group-icon {
+  color: var(--text-color);
+  -gtk-icon-size: var(--notification-group-icon-size);
+}
+
+.notification-group .notification-group-header {
+  color: var(--text-color);
+}
+
+.notification-group .notification-group-buttons {
+  margin: 0 16px;
+  color: var(--text-color);
+}
+
+.notification-group .notification-group-headers {
+  margin: 0 16px;
+  color: var(--text-color);
+}
+
+.notification-group.collapsed.not-expanded {
+  opacity: 0.4;
+}
+
+.notification-group.collapsed .notification-row .notification {
+  background-color: var(--noti-bg);
+}
+
+.notification-group.collapsed .notification-row:not(:last-child) .notification-action,
+.notification-group.collapsed .notification-row:not(:last-child) .notification-default-action {
+  opacity: 0;
+}
+
+.notification-group.collapsed:hover .notification-row:not(:only-child) .notification {
+  background-color: var(--noti-bg-hover);
+}
+
+.control-center {
+  background: var(--cc-bg);
+  color: var(--text-color);
+  border-radius: var(--border-radius);
+}
+
+.control-center .control-center-list-placeholder {
+  opacity: 0.5;
+}
+
+.control-center .control-center-list {
+  background: transparent;
+}
+
+.control-center .control-center-list .notification {
+  box-shadow: var(--notification-shadow);
+}
+
+.control-center .control-center-list .notification .notification-default-action,
+.control-center .control-center-list .notification .notification-action {
+  transition: var(--group-collapse-transition), var(--hover-transition);
+}
+
+.control-center .control-center-list .notification .notification-default-action:hover,
+.control-center .control-center-list .notification .notification-action:hover {
+  background-color: var(--noti-bg-hover);
+}
+
+.blank-window {
+  background: transparent;
+}
+
+.floating-notifications {
+  background: transparent;
+}
+
+.floating-notifications .notification {
+  box-shadow: none;
+}
+
+.widget {
+  margin: 8px;
+  padding: 8px;
+  border-radius: var(--border-radius);
+  background: var(--wallust-background-dim);
+  color: var(--text-color);
+}
+
+.widget .widget-title {
+  color: var(--text-color);
+}
+
+.widget .control-center-button {
+  color: var(--text-color);
+}
+
+.widget .control-center-button:hover {
+  background: var(--noti-bg-hover);
+}
+
+.widget .dnd-button {
+  color: var(--text-color);
+}
+
+.widget .dnd-button.checked {
+  background: var(--wallust-color1);
+  color: var(--wallust-background);
+}

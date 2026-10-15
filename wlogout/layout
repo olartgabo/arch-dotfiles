@@ -1,0 +1,30 @@
+{
+    "label" : "lock",
+    "action" : "gtklock",
+    "text" : "L",
+    "keybind" : "l"
+}
+{
+    "label" : "shutdown",
+    "action" : "systemctl poweroff",
+    "text" : "S",
+    "keybind" : "s"
+}
+{
+    "label" : "reboot",
+    "action" : "systemctl reboot",
+    "text" : "R",
+    "keybind" : "r"
+}
+{
+    "label" : "suspend",
+    "action" : "systemctl suspend",
+    "text" : "U",
+    "keybind" : "u"
+}
+{
+    "label" : "logout",
+    "action": "niri msg action quit --skip-confirmation",
+    "text" : "E",
+    "keybind" : "e"
+}

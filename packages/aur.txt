@@ -1,0 +1,14 @@
+deskreen
+fluxcast-git
+google-chrome
+niri-switch
+slack-desktop
+unimatrix-git
+vicinae-bin
+wallust-git
+wallust-git-debug
+wlogout
+wlogout-debug
+yay-bin
+yay-bin-debug
+zen-browser-bin

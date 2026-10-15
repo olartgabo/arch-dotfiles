@@ -1,29 +1,23 @@
-# wallust v3.3
-#
-# You can copy this file to ~/.config/wallust/wallust.toml (keep in mind is a sample config)
-
-# SIMPLE TUTORIAL, or `man wallust.5`:
-# https://explosion-mental.codeberg.page/wallust/
-#
-# If comming from v2: https://explosion-mental.codeberg.page/wallust/v3.html#wallusttoml
-
 # Global section - values below can be overwritten by command line flags
 
-# How the image is parse, in order to get the colors:
-# full - resized - wal - thumb -  fastresize - kmeans
+# How the image is parsed, in order to get the colors:
+# full - resized - wal - thumb - fastresize
 backend = "fastresize"
 
 # What color space to use to produce and select the most prominent colors:
 # lab - labmixed - lch - lchmixed
 color_space = "lab"
 
-# Use the most prominent colors in a way that makes sense, a scheme color palette:
-# dark - dark16 - darkcomp - darkcomp16
-# light - light16 - lightcomp - lightcomp16
-# harddark - harddark16 - harddarkcomp - harddarkcomp16
-# softdark - softdark16 - softdarkcomp - softdarkcomp16
-# softlight - softlight16 - softlightcomp - softlightcomp16
-palette = "harddark"
+# How the most prominent colors are picked from the image:
+# salience - ansi - kmeans
+# NOTE: salience panics in v4-alpha (src/histogram/salience.rs), hence kmeans
+palette = "kmeans"
+
+# Whether to generate a dark or light scheme
+style = "dark"
+
+# Whether to dim down the lower half of the palette
+use16cols = false
 
 # Ensures a "readable contrast" (OPTIONAL, disabled by default)
 # Should only be enabled when you notice an unreadable contrast frequently happening
@@ -33,18 +27,15 @@ check_contrast = true
 # Color saturation, between [1% and 100%] (OPTIONAL, disabled by default)
 # usually something higher than 50 increases the saturation and below
 # decreases it (on a scheme with strong and vivid colors)
-#saturation = 35
+saturation = 25
 
 # Alpha value for templating, by default 100 (no other use whatsoever)
 #alpha = 100
 
 [templates]
-# NOTE: prefer '' over "" for paths, avoids escaping.
-# template: A RELATIVE path that points to `~/.config/wallust/template` (depends on platform)
-# target: ABSOLUTE path in which to place a file with generated templated values.
-# ¡ If either one is a directory, then both SHOULD be one. !
-# zathura = { template = 'zathura', target = '~/.config/zathura/zathurarc' }
-alacritty = { template = 'alacritty.toml', target = '~/.config/alacritty/colors.toml' }
+# src: A RELATIVE path pointing to a file in the templates dir.
+# dst: ABSOLUTE path in which to place the generated file.
+alacritty = { src = 'alacritty.toml', dst = '~/.config/alacritty/colors.toml' }
 
 kitty = { src = 'kitty.conf', dst = '~/.config/kitty/colors.conf' }
 
@@ -64,6 +55,20 @@ rofi = { src = 'rofi.rasi', dst = '~/.config/rofi/colors/wallust.rasi' }
 
 mako = { src = 'mako', dst = '~/.config/mako/config' }
 
+swaync = { src = 'swaync.css', dst = '~/.config/swaync/colors.css' }
+
 zathurarc = { src = 'zathurarc', dst = '~/.config/zathura/zathurarc' }
 
-vicinae = { src = 'vicinae.toml', dst = '~/.local/share/vicinae/themes/wallust.toml'}
+vicinae = { src = 'vicinae.toml', dst = '~/.local/share/vicinae/themes/wallust.toml' }
+
+zen_colors = { src = 'zen-colors.json', dst = '~/.cache/wallust/zen-colors.json' }
+
+gtklock = { src = 'gtklock.css', dst = '~/.config/gtklock/style.css' }
+
+wlogout = { src = 'wlogout.css', dst = '~/.config/wlogout/style.css' }
+
+cava = { src = 'cava.conf', dst = '~/.config/cava/config' }
+
+[hooks]
+zen_wabi = 'python3 /home/olartgabo/Repository/zen-wabi/theme_switcher.py palette /home/olartgabo/.cache/wallust/zen-colors.json 2>>/tmp/zen_wabi_hook.log'
+

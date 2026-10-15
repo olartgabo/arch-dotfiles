@@ -2,7 +2,22 @@
 
 set -uo pipefail
 
-sleep 0.8 # let awww set the wallpaper
+# Wait until awww reports the expected wallpaper instead of sleeping blindly.
+wait_for_wallpaper() {
+  local expected="$1"
+  if [[ -z "$expected" ]]; then
+    sleep 0.8 # legacy behavior when no expected path is given
+    return
+  fi
+  local tries=0 current
+  while (( tries < 20 )); do
+    current=$(awww query 2> /dev/null | grep -oP '(?<=image: ).*' | head -n1 | tr -d '\n\r')
+    [[ "$current" == "$expected" ]] && return 0
+    sleep 0.05
+    (( tries++ ))
+  done
+  log_warn "Timed out waiting for wallpaper switch to $expected"
+}
 
 # Source common utilities if available
 if [[ -f "$(dirname "${BASH_SOURCE[0]}")/lib/common.sh" ]]; then
@@ -215,81 +230,6 @@ map_to_icon_theme() {
   esac
 }
 
-map_to_wallust_theme() {
-  local theme_name="$1"
-  local variation="$2"
-
-  case "${theme_name}" in
-    "catppuccin")
-      if [[ "$variation" == "light" ]]; then
-        echo "Catppuccin-Latte"
-      else
-        echo "Catppuccin-Mocha"
-      fi
-      ;;
-    "dracula")
-      if [[ "$variation" == "light" ]]; then
-        echo "base16-default-light"
-      else
-        echo "base16-dracula"
-      fi
-      ;;
-    "everforest")
-      if [[ "$variation" == "light" ]]; then
-        echo "Everforest-Light-Medium"
-      else
-        echo "Everforest-Dark-Medium"
-      fi
-      ;;
-    "gruvbox")
-      if [[ "$variation" == "light" ]]; then
-        echo "Gruvbox"
-      else
-        echo "Gruvbox-Dark"
-      fi
-      ;;
-    "material")
-      if [[ "$variation" == "light" ]]; then
-        echo "base16-default-light"
-      else
-        echo "base16-black-metal-funeral"
-      fi
-      ;;
-    "nord")
-      if [[ "$variation" == "light" ]]; then
-        echo "Nord-Light"
-      else
-        echo "Nord"
-      fi
-      ;;
-    "solarized")
-      if [[ "$variation" == "light" ]]; then
-        echo "Solarized-Light"
-      else
-        echo "Solarized-Dark"
-      fi
-      ;;
-    "rose-pine")
-      if [[ "$variation" == "light" ]]; then
-        echo "Rosé-Pine-Dawn"
-      else
-        echo "Rosé-Pine"
-      fi
-      ;;
-    "tokyo-night")
-      if [[ "$variation" == "light" ]]; then
-        echo "Tokyo-Night-Light"
-      else
-        echo "Tokyo-Night"
-      fi
-      ;;
-    *)
-      log_warn "Unknown theme: $theme_name, using random theme"
-      echo "random"
-      ;;
-  esac
-}
-
 # --- Functions ---
 
 detect_theme_from_wallpaper() {
@@ -335,6 +275,7 @@ detect_theme_from_wallpaper() {
 check_theme_changed() {
   local -r current_theme="$1"
   local -r current_variation="$2"
+  local -r current_wallpaper="$3"
 
   # Create cache directory if it doesn't exist
   mkdir -p "$(dirname "$THEME_STATE_FILE")"
@@ -344,10 +285,10 @@ check_theme_changed() {
     return 0 # Theme changed (first run)
   fi
 
-  local previous_theme previous_variation
-  read -r previous_theme previous_variation < "$THEME_STATE_FILE"
+  local previous_theme previous_variation previous_wallpaper
+  IFS='|' read -r previous_theme previous_variation previous_wallpaper < "$THEME_STATE_FILE"
 
-  if [[ "$current_theme" == "$previous_theme" && "$current_variation" == "$previous_variation" ]]; then
+  if [[ "$current_theme" == "$previous_theme" && "$current_variation" == "$previous_variation" && "$current_wallpaper" == "$previous_wallpaper" ]]; then
     log_info "Theme unchanged: $current_theme ($current_variation)"
     return 1 # Theme did not change
   else
@@ -359,9 +300,10 @@ check_theme_changed() {
 save_theme_state() {
   local -r theme="$1"
   local -r variation="$2"
+  local -r wallpaper="$3"
 
   mkdir -p "$(dirname "$THEME_STATE_FILE")"
-  echo "$theme $variation" > "$THEME_STATE_FILE"
+  echo "$theme|$variation|$wallpaper" > "$THEME_STATE_FILE"
   log_info "Saved theme state: $theme ($variation)"
 }
 
@@ -573,33 +515,14 @@ set_icon_theme() {
 }
 
 run_wallust_theme() {
-  local -r wallust_theme="$1"
-  local -r wallpaper_path="$2"
+  local -r wallpaper_path="$1"
 
-  log_info "Running wallust with theme: $wallust_theme for wallpaper: $wallpaper_path"
+  log_info "Running wallust on wallpaper: $wallpaper_path"
 
-  if [[ "$wallust_theme" == "random" ]]; then
-    # Just run wallust on the wallpaper without a specific theme if unknown
-    log_info "Running wallust in auto mode for: $wallpaper_path"
-    if ! wallust run "$wallpaper_path" --dynamic-threshold 2> /dev/null; then
-      log_warn "Wallust theme generation failed, continuing..."
-    else
-      log_success "Wallust theme generation completed"
-    fi
+  if ! wallust run "$wallpaper_path" --dynamic-threshold 2> /dev/null; then
+    log_warn "Wallust generation failed, continuing..."
   else
-    # Try to apply the specific theme if available
-    log_info "Applying specific wallust theme: $wallust_theme"
-    if ! wallust theme "$wallust_theme" 2> /dev/null; then
-      log_warn "Specific wallust theme failed, falling back to auto-generation for: $wallpaper_path"
-      # Fallback to running wallust on the wallpaper directly
-      if ! wallust run "$wallpaper_path" --dynamic-threshold 2> /dev/null; then
-        log_warn "Wallust generation failed completely, continuing..."
-      else
-        log_success "Wallust fallback theme generation completed"
-      fi
-    else
-      log_success "Wallust specific theme applied: $wallust_theme"
-    fi
+    log_success "Wallust theme generated from wallpaper"
   fi
 }
 
@@ -661,6 +584,9 @@ main() {
   # Validate dependencies
   validate_dependencies "awww" "wallust" "jq" "sed" "grep" "head" "tr"
 
+  # Wait for the wallpaper switch initiated by the caller (e.g. hyprquickpaper)
+  wait_for_wallpaper "${1:-}"
+
   # Detect theme from current wallpaper
   detect_theme_from_wallpaper
 
@@ -682,9 +608,9 @@ main() {
 
   log_info "Detected theme: $detected_theme, variation: $wallpaper_variation"
 
-  # Check if theme/variation changed
+  # Check if theme/variation/wallpaper changed
   local theme_changed=0
-  if check_theme_changed "$detected_theme" "$wallpaper_variation"; then
+  if check_theme_changed "$detected_theme" "$wallpaper_variation" "$wallpaper_path"; then
     theme_changed=1
   fi
 
@@ -695,33 +621,25 @@ main() {
   local icon_theme
   icon_theme=$(map_to_icon_theme "$detected_theme" "$wallpaper_variation")
 
-  local wallust_theme
-  wallust_theme=$(map_to_wallust_theme "$detected_theme" "$wallpaper_variation")
-
   # Only apply themes if theme/variation changed
   if [[ $theme_changed -eq 1 ]]; then
-    set_gtk_theme "$gtk_theme" "$wallpaper_variation" "$icon_theme"
-    set_icon_theme "$icon_theme"
-    run_wallust_theme "$wallust_theme" "$wallpaper_path"
+    # GTK/icon theming is independent of wallust - run concurrently
+    set_gtk_theme "$gtk_theme" "$wallpaper_variation" "$icon_theme" &
+    set_icon_theme "$icon_theme" &
+    run_wallust_theme "$wallpaper_path"
     update_niri_config
     update_vscode_theme
+    wait
 
-    if command -v vicinae > /dev/null 2>&1; then
-      vicinae theme set wallust || log_warn "Failed to set vicinae theme"
+    if command -v swaync-client > /dev/null 2>&1; then
+      swaync-client -rs 2> /dev/null || log_warn "Failed to reload swaync"
     else
-      log_warn "vicinae not found, skipping vicinae theme update"
+      log_warn "swaync-client not available, skipping notification daemon reload"
     fi
 
-    if command -v makoctl > /dev/null 2>&1; then
-      makoctl reload 2> /dev/null || log_warn "Failed to reload mako"
-    else
-      log_warn "makoctl not available, skipping notification daemon reload"
-    fi
-
-    save_theme_state "$detected_theme" "$wallpaper_variation"
+    save_theme_state "$detected_theme" "$wallpaper_variation" "$wallpaper_path"
 
     log_success "Dynamic theme synchronization completed successfully"
-    send_notification "Theme Manager" "Theme Synchronization Complete" "" "normal" "preferences-desktop-theme"
   else
     log_info "Theme unchanged, skipping all theming operations"
     log_success "Wallpaper applied, no theme changes needed"

@@ -56,7 +56,6 @@ bottom/
 celluloid/
 s-tui/
 kew/
-Thunar/
 waytrogen/
 qView/
 libvirt/
@@ -70,15 +69,11 @@ GIMP/
 kde.org/
 ego/
 cachyos/
-gtk-3.0/
-gtk-4.0/
 qt6ct/
 qt5ct/
-xfce4/
 QtProject.conf
 xsettingsd/
 htop/
-mimeapps.list
 user-dirs.dirs
 user-dirs.locale
 dconf/
@@ -93,3 +88,9 @@ Notion/
 *.env
 *.swp.*
 temp.md
+
+# Backups and local secrets
+*.bak
+*.bak-*
+*.bak.*
+.zshrc.secrets

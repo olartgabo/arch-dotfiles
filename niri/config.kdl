@@ -2,7 +2,9 @@
 spawn-sh-at-startup "/usr/lib/polkit-gnome/polkit-gnome-authentication-agent-1 &"
 spawn-at-startup "awww-daemon"
 spawn-at-startup "waybar"
-spawn-at-startup "sh" "-c" "vicinae server &"
+spawn-at-startup "swayidle"
+spawn-at-startup "wl-paste" "--type" "text" "--watch" "cliphist" "store"
+// spawn-at-startup "sh" "-c" "vicinae server &"
 
 // General Settings
 prefer-no-csd
@@ -58,25 +60,29 @@ binds {
     // Application Shortcuts
     MOD+RETURN                          hotkey-overlay-title="Open Terminal: alacritty" { spawn-sh "alacritty"; }
     MOD+ALT+RETURN                      hotkey-overlay-title="Open Terminal: kitty" { spawn-sh "kitty"; }
-    MOD+ALT+B                         hotkey-overlay-title="Open Secondary Browser: chrome" { spawn-sh "google-chrome-stable --enable-features=TouchpadOverscrollHistoryNavigation"; }
+    MOD+G                               hotkey-overlay-title="Toggle Dropdown Terminal" { spawn-sh "$HOME/.config/niri/scripts/dropdown.sh"; }
+    MOD+ALT+B                         hotkey-overlay-title="Open Secondary Browser: firefox dev" { spawn-sh "firefox-developer-edition"; }
     MOD+SHIFT+Q                         hotkey-overlay-title="Lock Screen: gtklock" { spawn-sh "gtklock"; }
-    MOD+A                               hotkey-overlay-title="Open App Launcher: vicinae" { spawn-sh "vicinae toggle"; }
-    MOD+B                               hotkey-overlay-title="Open Browser: firefox" { spawn-sh "firefox-developer-edition"; }
+    MOD+X                               hotkey-overlay-title="Open Power Menu: wlogout" { spawn-sh "wlogout -b 2"; }
+    MOD+A                               hotkey-overlay-title="Open App Launcher: rofi" { spawn-sh "rofi -show combi"; }
+    MOD+V                               hotkey-overlay-title="Open Clipboard History" { spawn-sh "$HOME/.config/niri/scripts/clipboard-picker.sh"; }
+    MOD+B                               hotkey-overlay-title="Open Browser: Zen" { spawn-sh "zen-browser"; }
     MOD+E                               hotkey-overlay-title="File Manager: Thunar" { spawn-sh "thunar"; }
     MOD+ALT+E                           hotkey-overlay-title="File Manager: Yazi" { spawn-sh "yazi"; }
-    MOD+W                               hotkey-overlay-title="Open Wallpaper Selector" { spawn-sh "$HOME/.config/scripts/bgselector.sh"; }
+    MOD+W                               hotkey-overlay-title="Open Wallpaper Selector" { spawn-sh "$HOME/.config/niri/scripts/wallpaper-picker.sh"; }
+    MOD+ALT+I                           hotkey-overlay-title="Toggle AI Mode: on/off" { spawn-sh "$HOME/.config/scripts/lid-suspend-toggle.sh"; }
 
     // Media Keys
-    XF86AudioRaiseVolume                allow-when-locked=true { spawn-sh "mediactl volume_up"; }
-    XF86AudioLowerVolume                allow-when-locked=true { spawn-sh "mediactl volume_down"; }
-    XF86MonBrightnessUp                 allow-when-locked=true { spawn-sh "mediactl brightness_up"; }
-    XF86MonBrightnessDown               allow-when-locked=true { spawn-sh "mediactl brightness_down"; }
-    XF86AudioMute                       allow-when-locked=true { spawn-sh "mediactl volume_mute"; }
-    XF86AudioMicMute                    allow-when-locked=true { spawn-sh "mediactl mic_mute"; }
-    XF86AudioNext                       allow-when-locked=true { spawn-sh "mediactl next_track"; }
-    XF86AudioPause                      allow-when-locked=true { spawn-sh "mediactl play_pause"; }
-    XF86AudioPlay                       allow-when-locked=true { spawn-sh "mediactl play_pausse"; }
-    XF86AudioPrev                       allow-when-locked=true { spawn-sh "mediactl prev_track"; }
+    XF86AudioRaiseVolume                allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh volume_up"; }
+    XF86AudioLowerVolume                allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh volume_down"; }
+    XF86MonBrightnessUp                 allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh brightness_up"; }
+    XF86MonBrightnessDown               allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh brightness_down"; }
+    XF86AudioMute                       allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh volume_mute"; }
+    XF86AudioMicMute                    allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh mic_mute"; }
+    XF86AudioNext                       allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh next_track"; }
+    XF86AudioPause                      allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh play_pause"; }
+    XF86AudioPlay                       allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh play_pause"; }
+    XF86AudioPrev                       allow-when-locked=true { spawn-sh "$HOME/.config/scripts/media-control.sh prev_track"; }
 
     // Window Management
     MOD+Q                               { close-window; }
@@ -192,7 +198,8 @@ binds {
     MOD+S                               { screenshot; }
     MOD+SHIFT+S                         { screenshot-screen write-to-disk=true; }
     MOD+CTRL+S                          { screenshot-window write-to-disk=true; }
-    MOD+P                               { spawn-sh "pgrep -x hyprpicker >/dev/null || hyprpicker"; }
+    MOD+P                               hotkey-overlay-title="Display Switch" { spawn-sh "$HOME/.config/niri/scripts/display-switch.sh"; }
+    MOD+ALT+P                           hotkey-overlay-title="Color Picker: hyprpicker" { spawn-sh "pgrep -x hyprpicker >/dev/null || hyprpicker"; }
 
     // Application Restarts
     MOD+ALT+W                           { spawn "sh" "-c" "pgrep -x waybar >/dev/null && killall waybar || waybar &"; }
@@ -214,12 +221,12 @@ layout {
 
     focus-ring {
         width 0
-        active-color "#1E1E2E"
+        active-color "#272C37"
     }
 
     insert-hint {
         off
-        color "#1E1E2E"
+        color "#272C37"
     }
 
     struts {}
@@ -371,7 +378,7 @@ window-rule {
     match is-active=false
     opacity 0.9
 }
-
+// Active Window transparency
 // Environment Variables
 environment {
     DISPLAY null
@@ -406,4 +413,3 @@ environment {
     VDPAU_DRIVER "va_gl"
     LIBVA_DRIVER_NAME "iHD"
 }
-
